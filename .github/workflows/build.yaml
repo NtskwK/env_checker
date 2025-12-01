@@ -12,25 +12,31 @@ jobs:
       matrix:
         include:
           # Windows x86_64
-          - target: x86_64-pc-windows-gnu
+          - os: windows-latest
+            target: x86_64-pc-windows-gnu
             artifact_name: env_checker.exe
           # Windows ARM64
-          - target: aarch64-pc-windows-gnullvm
+          - os: windows-11-arm
+            target: aarch64-pc-windows-gnullvm
             artifact_name: env_checker.exe
           # Linux x86_64
-          - target: x86_64-unknown-linux-gnu
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
             artifact_name: env_checker
           # Linux ARM64
-          - target: aarch64-unknown-linux-gnu
+          - os: ubuntu-24.04-arm
+            target: aarch64-unknown-linux-gnu
             artifact_name: env_checker
           # macOS x86_64
-          - target: x86_64-apple-darwin
+          - os: macos-15-intel
+            target: x86_64-apple-darwin
             artifact_name: env_checker
           # macOS ARM64
-          - target: aarch64-apple-darwin
+          - os: macos-latest
+            target: aarch64-apple-darwin
             artifact_name: env_checker
 
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
 
     steps:
       - uses: actions/checkout@v4
@@ -42,7 +48,7 @@ jobs:
       - name: install aarch64-w64-mingw32-clang on windows arm64
         if: matrix.target == 'aarch64-pc-windows-gnullvm'
         run: |
-          winget install LLVM.LLVM
+          choco install LLVM.LLVM
 
       - name: Build
         run: cargo build --release --target ${{ matrix.target }}
