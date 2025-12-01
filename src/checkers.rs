@@ -5,6 +5,7 @@ use std::process::Command;
 use crate::RuntimeInfo;
 
 pub fn check_vcruntime() {
+    #[cfg(target_os = "windows")]
     println!("\n=== Visual C++ Runtime 检测 ===\n");
 
     let mut found_runtimes: HashMap<String, RuntimeInfo> = HashMap::new();
@@ -120,6 +121,9 @@ pub fn check_vcruntime() {
             println!("64位版本 (x64): {} 个", x64_count);
         }
     }
+
+    #[cfg(not(target_os = "windows"))]
+    println!("Visual C++ Runtime Checker is only available on Windows\n");
 }
 
 pub fn check_dotnet() {
@@ -133,20 +137,31 @@ pub fn check_dotnet() {
             let runtimes = String::from_utf8_lossy(&output.stdout);
             let runtime_lines: Vec<&str> = runtimes.lines().collect();
 
-            // 只筛选 Windows Desktop Runtime
+            // 所有平台都只筛选 Desktop Runtime
             let mut desktop_runtimes = Vec::new();
 
             for runtime in runtime_lines {
                 let runtime = runtime.trim();
-                if runtime.starts_with("Microsoft.WindowsDesktop.App") {
-                    desktop_runtimes.push(runtime);
+
+                #[cfg(target_os = "windows")]
+                {
+                    if runtime.starts_with("Microsoft.WindowsDesktop.App") {
+                        desktop_runtimes.push(runtime);
+                    }
+                }
+
+                #[cfg(not(target_os = "windows"))]
+                {
+                    if runtime.starts_with("Microsoft.NETCore.App") {
+                        desktop_runtimes.push(runtime);
+                    }
                 }
             }
 
             if !desktop_runtimes.is_empty() {
                 found_any = true;
                 println!(
-                    "🖥️  已安装的 Windows Desktop Runtime ({} 个):\n",
+                    "🖥️  已安装的 Desktop Runtime ({} 个):\n",
                     desktop_runtimes.len()
                 );
 
@@ -162,9 +177,25 @@ pub fn check_dotnet() {
     }
 
     if !found_any {
-        println!("\n❌ 未检测到任何 Windows Desktop Runtime 安装");
+        println!("\n❌ 未检测到任何 Desktop Runtime 安装");
         println!("\n建议:");
-        println!("  - 访问 Microsoft 官网下载 .NET Desktop Runtime");
-        println!("  - 下载地址: https://dotnet.microsoft.com/download");
+
+        #[cfg(target_os = "windows")]
+        {
+            println!("  - 访问 Microsoft 官网下载 .NET Runtime");
+            println!("  - 下载地址: https://dotnet.microsoft.com/download");
+        }
+
+        #[cfg(target_os = "linux")]
+        {
+            println!("  - 访问 Microsoft 官网下载 .NET Runtime");
+            println!("  - 下载地址: https://dotnet.microsoft.com/download");
+        }
+
+        #[cfg(target_os = "macos")]
+        {
+            println!("  - 访问 Microsoft 官网下载 .NET Runtime");
+            println!("  - 下载地址: https://dotnet.microsoft.com/download");
+        }
     }
 }
