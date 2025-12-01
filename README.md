@@ -87,7 +87,7 @@ cargo run --release
 ```
 === .NET Desktop Runtime 检测 ===
 
-�️  已安装的 Windows Desktop Runtime (6 个):
+已安装的 Windows Desktop Runtime (6 个):
 
    1. Microsoft.WindowsDesktop.App 3.1.32 [C:\Program Files\dotnet\shared\Microsoft.WindowsDesktop.App]
    2. Microsoft.WindowsDesktop.App 6.0.36 [C:\Program Files\dotnet\shared\Microsoft.WindowsDesktop.App]
