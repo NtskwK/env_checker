@@ -1,36 +1,31 @@
 # 运行时环境检测工具
 
-一个用 Rust 编写的 Windows 系统运行时环境检测工具,可以检测系统上安装的 Visual C++ Runtime 和 .NET Runtime/SDK。
+一个用 Rust 编写的 Windows 系统运行时环境检测工具,可以检测系统上安装的 Visual C++ Runtime 和 .NET Desktop Runtime。
 
 ## 功能特性
 
 ### ✅ Visual C++ Runtime 检测
 
-- 扫描 Windows 注册表检测已安装的 VC++ Runtime
+- 通过检测系统目录中的 DLL 文件来识别已安装的 VC++ Runtime
 - 支持检测 32 位 (x86) 和 64 位 (x64) 版本
-- 识别各种 VC++ Runtime 变体:
-  - Visual C++ Redistributable
-  - Minimum Runtime
-  - Additional Runtime
-  - Debug Runtime
-- 显示详细信息:版本号、发布者、安装位置
+- 支持的 VC++ Runtime 版本:
+  - Visual C++ 2005 (8.0)
+  - Visual C++ 2008 (9.0)
+  - Visual C++ 2010 (10.0)
+  - Visual C++ 2012 (11.0)
+  - Visual C++ 2013 (12.0)
+  - Visual C++ 2015-2022 (14.x)
+- 显示详细信息:版本号、发布者、检测位置
 - 统计分析:按架构分类统计
 
-### ✅ .NET Runtime / SDK 检测
+### ✅ .NET Desktop Runtime 检测
 
 - **通过 dotnet CLI 检测**:
-
   - 检测 dotnet 命令是否可用
-  - 列出所有已安装的 .NET SDK
-  - 列出所有已安装的 .NET Runtime,按类型分组:
-    - 📘 .NET Runtime (Core)
-    - 🌐 ASP.NET Core Runtime
-    - 🖥️ Windows Desktop Runtime
-  - 显示 SDK 基路径
+  - 列出所有已安装的 Windows Desktop Runtime
+  - 显示版本号和安装路径
 
-- **通过注册表检测**:
-  - 扫描注册表中的 .NET 相关安装
-  - 显示版本、发布者、安装位置等详细信息
+> **注意**: 本工具专注于检测 Windows Desktop Runtime，不检测 .NET SDK、.NET Core Runtime 或 ASP.NET Core Runtime。
 
 ## 使用方法
 
@@ -55,14 +50,14 @@ cargo run --release
 
 请选择要检测的内容:
 1. Visual C++ Runtime
-2. .NET Runtime / SDK
+2. .NET Desktop Runtime
 3. 全部检测
 
 输入选项 (1/2/3) 或直接按回车检测全部:
 ```
 
 - 输入 `1`: 仅检测 Visual C++ Runtime
-- 输入 `2`: 仅检测 .NET Runtime/SDK
+- 输入 `2`: 仅检测 .NET Desktop Runtime
 - 输入 `3` 或直接回车: 检测全部
 
 ## 示例输出
@@ -87,38 +82,19 @@ cargo run --release
 64位版本 (x64): 4 个
 ```
 
-### .NET Runtime 检测示例
+### .NET Desktop Runtime 检测示例
 
 ```
-=== .NET Runtime / SDK 检测 ===
+=== .NET Desktop Runtime 检测 ===
 
-📦 通过 dotnet CLI 检测:
+�️  已安装的 Windows Desktop Runtime (6 个):
 
-✅ dotnet CLI 已安装 (默认版本: 9.0.101)
-
-🔧 已安装的 .NET SDK (3 个):
-   1. 8.0.404 [C:\Program Files\dotnet\sdk]
-   2. 9.0.100 [C:\Program Files\dotnet\sdk]
-   3. 9.0.101 [C:\Program Files\dotnet\sdk]
-
-⚙️  已安装的 .NET Runtime (9 个):
-
-   📘 .NET Runtime (Core):
-      1. Microsoft.NETCore.App 8.0.11 [C:\Program Files\dotnet\shared\Microsoft.NETCore.App]
-      2. Microsoft.NETCore.App 9.0.0 [C:\Program Files\dotnet\shared\Microsoft.NETCore.App]
-      3. Microsoft.NETCore.App 9.0.1 [C:\Program Files\dotnet\shared\Microsoft.NETCore.App]
-
-   🌐 ASP.NET Core Runtime:
-      1. Microsoft.AspNetCore.App 8.0.11 [C:\Program Files\dotnet\shared\Microsoft.AspNetCore.App]
-      2. Microsoft.AspNetCore.App 9.0.0 [C:\Program Files\dotnet\shared\Microsoft.AspNetCore.App]
-      3. Microsoft.AspNetCore.App 9.0.1 [C:\Program Files\dotnet\shared\Microsoft.AspNetCore.App]
-
-   🖥️  Windows Desktop Runtime:
-      1. Microsoft.WindowsDesktop.App 8.0.11 [C:\Program Files\dotnet\shared\Microsoft.WindowsDesktop.App]
-      2. Microsoft.WindowsDesktop.App 9.0.0 [C:\Program Files\dotnet\shared\Microsoft.WindowsDesktop.App]
-      3. Microsoft.WindowsDesktop.App 9.0.1 [C:\Program Files\dotnet\shared\Microsoft.WindowsDesktop.App]
-
-📁 SDK 基路径: C:\Program Files\dotnet\sdk\9.0.101\
+   1. Microsoft.WindowsDesktop.App 3.1.32 [C:\Program Files\dotnet\shared\Microsoft.WindowsDesktop.App]
+   2. Microsoft.WindowsDesktop.App 6.0.36 [C:\Program Files\dotnet\shared\Microsoft.WindowsDesktop.App]
+   3. Microsoft.WindowsDesktop.App 8.0.16 [C:\Program Files\dotnet\shared\Microsoft.WindowsDesktop.App]
+   4. Microsoft.WindowsDesktop.App 8.0.18 [C:\Program Files\dotnet\shared\Microsoft.WindowsDesktop.App]
+   5. Microsoft.WindowsDesktop.App 9.0.7 [C:\Program Files\dotnet\shared\Microsoft.WindowsDesktop.App]
+   6. Microsoft.WindowsDesktop.App 10.0.0 [C:\Program Files\dotnet\shared\Microsoft.WindowsDesktop.App]
 ```
 
 ## 技术细节
@@ -132,18 +108,16 @@ cargo run --release
 
 #### Visual C++ Runtime
 
-通过扫描以下注册表位置:
+通过检测 Windows 系统目录中的 VC++ Runtime DLL 文件:
 
-- `HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall`
-- `HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall`
-- `HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall`
+- `%SystemRoot%\System32` (64 位 DLL)
+- `%SystemRoot%\SysWOW64` (32 位 DLL)
 
-匹配包含 "Visual C++" 和 "Runtime/Redistributable" 关键字的条目。
+根据检测到的 DLL 文件名（如 `vcruntime140.dll`、`msvcr120.dll` 等）来识别对应的 VC++ Runtime 版本。
 
-#### .NET Runtime/SDK
+#### .NET Desktop Runtime
 
-1. **CLI 检测**: 执行 `dotnet --list-sdks` 和 `dotnet --list-runtimes` 命令
-2. **注册表检测**: 扫描注册表中包含 ".NET" 和相关关键字的条目
+执行 `dotnet --list-runtimes` 命令，筛选出 `Microsoft.WindowsDesktop.App` 类型的 Runtime。
 
 ## 系统要求
 
