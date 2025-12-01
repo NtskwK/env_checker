@@ -48,8 +48,7 @@ jobs:
       - name: install aarch64-w64-mingw32-clang on windows arm64
         if: matrix.target == 'aarch64-pc-windows-gnullvm'
         run: |
-          choco install llvm
-          choco install mingw-w64
+          winget install LLVM.LLVM
 
       - name: Build
         run: cargo build --release --target ${{ matrix.target }}
